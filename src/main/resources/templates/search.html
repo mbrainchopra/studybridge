@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Search | StudyBridge</title>
+
+    <style>
+        :root {
+            --primary: #1677ff;
+            --primary-dark: #0758c9;
+            --primary-light: #eaf3ff;
+            --text: #172b4d;
+            --muted: #64748b;
+            --border: #e5eaf2;
+            --background: #f5f8fd;
+            --white: #ffffff;
+            --success: #167847;
+            --success-bg: #e8f8ef;
+            --danger: #c62828;
+            --danger-bg: #fff0f0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 14px 6%;
+            background: rgba(255, 255, 255, 0.96);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 3px 15px rgba(25, 55, 100, 0.04);
+            backdrop-filter: blur(12px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+            text-decoration: none;
+        }
+
+        .brand-icon {
+            display: grid;
+            place-items: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            color: white;
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1683ff, #5146e5);
+            box-shadow: 0 5px 12px rgba(22, 119, 255, 0.22);
+        }
+
+        .brand-name {
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: -0.6px;
+            color: var(--text);
+        }
+
+        .brand-name span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            padding: 9px 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #52627a;
+            font-size: 13px;
+            font-weight: 650;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        /* Main layout */
+        .container {
+            width: 88%;
+            max-width: 1150px;
+            margin: 32px auto 55px;
+            animation: fadeUp 0.55s ease both;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+            padding: 31px 34px;
+            margin-bottom: 25px;
+            border-radius: 20px;
+            color: white;
+            background: linear-gradient(115deg, #1267e8 0%, #287ff5 53%, #6658e8 100%);
+            box-shadow: 0 12px 30px rgba(36, 105, 220, 0.17);
+        }
+
+        .hero::before,
+        .hero::after {
+            content: "";
+            position: absolute;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .hero::before {
+            width: 230px;
+            height: 230px;
+            right: 110px;
+            top: -155px;
+        }
+
+        .hero::after {
+            width: 180px;
+            height: 180px;
+            right: -35px;
+            bottom: -125px;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            padding: 5px 11px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.27);
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.12);
+            font-size: 11px;
+            font-weight: 750;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            margin: 0 0 8px;
+            font-size: clamp(25px, 3vw, 34px);
+            line-height: 1.25;
+            letter-spacing: -0.8px;
+        }
+
+        .hero p {
+            max-width: 650px;
+            margin: 0;
+            color: #e4efff;
+            font-size: 14px;
+        }
+
+        .hero-icon {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            place-items: center;
+            width: 88px;
+            height: 88px;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.13);
+            font-size: 39px;
+            animation: float 3.5s ease-in-out infinite;
+        }
+
+        /* Search panel */
+        .search-card {
+            position: relative;
+            padding: 27px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+            border-radius: 17px;
+            background: var(--white);
+            box-shadow: 0 5px 22px rgba(32, 60, 100, 0.045);
+        }
+
+        .search-heading {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            margin-bottom: 8px;
+        }
+
+        .search-icon {
+            display: grid;
+            place-items: center;
+            width: 47px;
+            height: 47px;
+            flex-shrink: 0;
+            border-radius: 14px;
+            background: var(--primary-light);
+            font-size: 24px;
+        }
+
+        .search-heading h2 {
+            margin: 0;
+            font-size: 21px;
+            letter-spacing: -0.4px;
+        }
+
+        .search-heading p {
+            margin: 3px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .search-form {
+            display: flex;
+            align-items: stretch;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            color: #8a98ad;
+            font-size: 19px;
+            pointer-events: none;
+        }
+
+        .search-form input {
+            width: 100%;
+            min-width: 0;
+            padding: 14px 16px 14px 45px;
+            border: 1px solid #d9e1ed;
+            border-radius: 10px;
+            outline: none;
+            background: #fbfcff;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 14px;
+            transition: border 0.2s ease, box-shadow 0.2s ease,
+            background 0.2s ease;
+        }
+
+        .search-form input:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(22, 119, 255, 0.1);
+        }
+
+        .search-form input::placeholder {
+            color: #98a4b6;
+        }
+
+        .search-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 24px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            background: var(--primary);
+            box-shadow: 0 5px 12px rgba(22, 119, 255, 0.18);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 750;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease,
+            box-shadow 0.2s ease;
+        }
+
+        .search-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(22, 119, 255, 0.24);
+        }
+
+        .search-hint {
+            margin: 13px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .search-hint strong {
+            color: #455873;
+        }
+
+        /* Summary cards */
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 27px;
+        }
+
+        .summary-card {
+            position: relative;
+            overflow: hidden;
+            padding: 19px;
+            border: 1px solid var(--border);
+            border-top: 4px solid #94a3b8;
+            border-radius: 13px;
+            background: white;
+            box-shadow: 0 4px 16px rgba(32, 60, 100, 0.035);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 9px 20px rgba(32, 60, 100, 0.07);
+        }
+
+        .summary-card h3 {
+            margin: 0 0 12px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .summary-card p {
+            margin: 0;
+            color: var(--text);
+            font-size: 30px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .summary-icon {
+            display: grid;
+            place-items: center;
+            width: 34px;
+            height: 34px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            background: #f0f4fa;
+            font-size: 17px;
+        }
+
+        .summary-card.total {
+            border-top-color: #2563eb;
+        }
+
+        .summary-card.total .summary-icon {
+            background: #eaf3ff;
+        }
+
+        .summary-card.subjects {
+            border-top-color: #0891b2;
+        }
+
+        .summary-card.subjects .summary-icon {
+            background: #e4f9ff;
+        }
+
+        .summary-card.notices {
+            border-top-color: #8b5cf6;
+        }
+
+        .summary-card.notices .summary-icon {
+            background: #f2ebff;
+        }
+
+        .summary-card.deadlines {
+            border-top-color: #d97706;
+        }
+
+        .summary-card.deadlines .summary-icon {
+            background: #fff4df;
+        }
+
+        .summary-card.syllabus {
+            border-top-color: #16a34a;
+        }
+
+        .summary-card.syllabus .summary-icon {
+            background: #e8f8ef;
+        }
+
+        /* Results sections */
+        .results-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin: 30px 0 16px;
+        }
+
+        .results-heading h2 {
+            margin: 0;
+            font-size: 19px;
+            letter-spacing: -0.3px;
+        }
+
+        .results-heading p {
+            margin: 3px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .section {
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 5px 22px rgba(32, 60, 100, 0.04);
+            animation: fadeUp 0.45s ease both;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 19px 22px;
+            border-bottom: 1px solid #edf0f5;
+            background: #fcfdff;
+        }
+
+        .section-icon {
+            display: grid;
+            place-items: center;
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            border-radius: 12px;
+            background: var(--primary-light);
+            font-size: 21px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .section-header p {
+            margin: 2px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .result-count {
+            margin-left: auto;
+            padding: 5px 9px;
+            border-radius: 20px;
+            background: #eff3f9;
+            color: #5c6d85;
+            font-size: 11px;
+            font-weight: 750;
+            white-space: nowrap;
+        }
+
+        .result-list {
+            padding: 0 22px;
+        }
+
+        .result {
+            padding: 19px 0;
+            border-bottom: 1px solid #edf0f5;
+            overflow-wrap: anywhere;
+            transition: background 0.2s ease;
+        }
+
+        .result:last-child {
+            border-bottom: none;
+        }
+
+        .result h3 {
+            margin: 0 0 9px;
+            color: #1c2d49;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .result p {
+            margin: 7px 0;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .result p strong {
+            color: #43516a;
+        }
+
+        .result-meta {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 8px 0;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 9px;
+            border: 1px solid #dbe8ff;
+            border-radius: 7px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 11px;
+            font-weight: 750;
+        }
+
+        .result-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 7px;
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 750;
+            text-decoration: none;
+            transition: gap 0.2s ease;
+        }
+
+        .result-link:hover {
+            gap: 10px;
+            color: var(--primary-dark);
+        }
+
+        .empty {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            margin: 18px 22px;
+            padding: 15px;
+            border: 1px dashed #dbe3ee;
+            border-radius: 10px;
+            background: #f8faff;
+            color: #6b7b92;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .empty-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        /* No overall results */
+        .no-results {
+            padding: 35px 22px;
+            margin-bottom: 22px;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            background: white;
+            text-align: center;
+            box-shadow: 0 5px 22px rgba(32, 60, 100, 0.04);
+        }
+
+        .no-results-icon {
+            display: grid;
+            place-items: center;
+            width: 68px;
+            height: 68px;
+            margin: 0 auto 14px;
+            border-radius: 20px;
+            background: #f0f4fa;
+            font-size: 30px;
+        }
+
+        .no-results h2 {
+            margin: 0 0 7px;
+            font-size: 20px;
+        }
+
+        .no-results p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        /* Getting started */
+        .guide-card {
+            padding: 25px;
+            margin-top: 25px;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 5px 22px rgba(32, 60, 100, 0.04);
+        }
+
+        .guide-card h2 {
+            margin: 0 0 7px;
+            font-size: 19px;
+        }
+
+        .guide-card > p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .example-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-top: 17px;
+        }
+
+        .example-chip {
+            display: inline-block;
+            padding: 8px 12px;
+            border: 1px solid #dbe8ff;
+            border-radius: 9px;
+            color: #2164c5;
+            background: #f5f9ff;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .example-chip:hover {
+            background: #e6f1ff;
+            transform: translateY(-2px);
+        }
+
+        footer {
+            padding: 22px 6%;
+            border-top: 1px solid var(--border);
+            background: white;
+            color: var(--muted);
+            text-align: center;
+            font-size: 12px;
+        }
+
+        footer strong {
+            color: var(--primary);
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        @media (max-width: 1000px) {
+            .navbar {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .nav-links {
+                width: 100%;
+            }
+
+            .container {
+                width: 92%;
+            }
+
+            .summary {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 700px) {
+            .summary {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .summary-card.total {
+                grid-column: span 2;
+            }
+
+            .hero {
+                padding: 25px 22px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 13px 5%;
+            }
+
+            .nav-links {
+                gap: 4px;
+            }
+
+            .nav-links a {
+                padding: 8px 9px;
+                font-size: 12px;
+            }
+
+            .container {
+                width: 92%;
+                margin-top: 22px;
+            }
+
+            .hero {
+                border-radius: 16px;
+            }
+
+            .hero h1 {
+                font-size: 25px;
+            }
+
+            .hero p {
+                font-size: 12px;
+            }
+
+            .hero-icon {
+                width: 60px;
+                height: 60px;
+                border-radius: 17px;
+                font-size: 28px;
+            }
+
+            .search-card {
+                padding: 19px;
+            }
+
+            .search-heading h2 {
+                font-size: 18px;
+            }
+
+            .search-form {
+                flex-direction: column;
+            }
+
+            .search-form input {
+                padding-top: 13px;
+                padding-bottom: 13px;
+            }
+
+            .search-button {
+                min-height: 45px;
+            }
+
+            .summary {
+                gap: 10px;
+            }
+
+            .summary-card {
+                padding: 15px;
+            }
+
+            .summary-card p {
+                font-size: 26px;
+            }
+
+            .section-header {
+                padding: 15px;
+            }
+
+            .result-list {
+                padding: 0 15px;
+            }
+
+            .empty {
+                margin: 14px;
+            }
+
+            .guide-card {
+                padding: 19px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <a class="brand" th:href="@{/dashboard}">
+        <span class="brand-icon">S</span>
+        <span class="brand-name">Study<span>Bridge</span></span>
+    </a>
+
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <a th:href="@{/subjects}">Subjects</a>
+        <a th:href="@{/notices}">Notices</a>
+        <a th:href="@{/deadlines}">Deadlines</a>
+        <a th:href="@{/syllabus}">Syllabus</a>
+        <a class="active" th:href="@{/search}">Smart Search</a>
+    </div>
+</nav>
+
+<main class="container">
+
+    <section class="hero">
+        <div class="hero-content">
+            <span class="eyebrow">One search · All your academics</span>
+            <h1>Find What You Need, Faster 🔍</h1>
+            <p>Search subjects, college notices, deadlines and extracted syllabus text from one place.</p>
+        </div>
+        <div class="hero-icon" aria-hidden="true">🔎</div>
+    </section>
+
+    <section class="search-card">
+        <div class="search-heading">
+            <div class="search-icon">🔍</div>
+            <div>
+                <h2>Smart Academic Search</h2>
+                <p>Search your academic information using a keyword.</p>
+            </div>
+        </div>
+
+        <form class="search-form"
+              th:action="@{/search}"
+              method="get">
+
+            <div class="input-wrap">
+                <span class="input-icon" aria-hidden="true">⌕</span>
+                <input type="search"
+                       name="q"
+                       th:value="${q}"
+                       placeholder="Try Java, CS101, exam, assignment..."
+                       aria-label="Search academic information">
+            </div>
+
+            <button class="search-button" type="submit">
+                <span>⌕</span> Search
+            </button>
+        </form>
+
+        <p class="search-hint">
+            <strong>Tip:</strong>
+            Try a subject code, notice keyword, assignment title or syllabus topic.
+        </p>
+    </section>
+
+    <div th:if="${not #strings.isEmpty(q)}">
+
+        <div class="results-heading">
+            <div>
+                <h2>Search Overview</h2>
+                <p>Results matching your search query</p>
+            </div>
+        </div>
+
+        <section class="summary">
+
+            <div class="summary-card total">
+                <div class="summary-icon">📊</div>
+                <h3>Total Results</h3>
+                <p th:text="${totalResults}">0</p>
+            </div>
+
+            <div class="summary-card subjects">
+                <div class="summary-icon">📚</div>
+                <h3>Subjects</h3>
+                <p th:text="${subjectCount}">0</p>
+            </div>
+
+            <div class="summary-card notices">
+                <div class="summary-icon">📢</div>
+                <h3>Notices</h3>
+                <p th:text="${noticeCount}">0</p>
+            </div>
+
+            <div class="summary-card deadlines">
+                <div class="summary-icon">📅</div>
+                <h3>Deadlines</h3>
+                <p th:text="${deadlineCount}">0</p>
+            </div>
+
+            <div class="summary-card syllabus">
+                <div class="summary-icon">📄</div>
+                <h3>Syllabus</h3>
+                <p th:text="${syllabusCount}">0</p>
+            </div>
+
+        </section>
+
+        <section class="no-results"
+                 th:if="${totalResults == 0}">
+            <div class="no-results-icon">🔎</div>
+            <h2>No matching results</h2>
+            <p>Try another keyword, subject code or a shorter search term.</p>
+        </section>
+
+        <!-- Subject results -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-icon">📚</div>
+                <div>
+                    <h2>Subjects</h2>
+                    <p>Matching academic subjects</p>
+                </div>
+                <span class="result-count"
+                      th:text="${subjectCount} + ' found'">0 found</span>
+            </div>
+
+            <div class="empty"
+                 th:if="${#lists.isEmpty(subjects)}">
+                <span class="empty-icon">ⓘ</span>
+                <span>No matching subjects found.</span>
+            </div>
+
+            <div class="result-list">
+                <div class="result"
+                     th:each="subject : ${subjects}">
+
+                    <h3 th:text="${subject.subjectName}">Subject name</h3>
+
+                    <div class="result-meta">
+                        <span class="tag">
+                            Code:
+                            <span th:text="${subject.subjectCode != null
+                                ? subject.subjectCode : 'Not specified'}"></span>
+                        </span>
+                    </div>
+
+                    <p>
+                        <strong>Semester:</strong>
+                        <span th:text="${subject.semester != null
+                            ? subject.semester : 'Not specified'}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Department:</strong>
+                        <span th:text="${subject.department != null
+                            ? subject.department : 'Not specified'}"></span>
+                    </p>
+
+                    <a class="result-link" th:href="@{/subjects}">
+                        View subjects →
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notice results -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-icon">📢</div>
+                <div>
+                    <h2>Notices</h2>
+                    <p>Matching college announcements</p>
+                </div>
+                <span class="result-count"
+                      th:text="${noticeCount} + ' found'">0 found</span>
+            </div>
+
+            <div class="empty"
+                 th:if="${#lists.isEmpty(notices)}">
+                <span class="empty-icon">ⓘ</span>
+                <span>No matching notices found.</span>
+            </div>
+
+            <div class="result-list">
+                <div class="result"
+                     th:each="notice : ${notices}">
+
+                    <h3 th:text="${notice.title}">Notice title</h3>
+
+                    <p>
+                        <strong>Date:</strong>
+                        <span th:text="${notice.noticeDate != null
+                            ? notice.noticeDate : 'Not specified'}"></span>
+                    </p>
+
+                    <div class="result-meta"
+                         th:if="${notice.category != null
+                                 and !notice.category.isBlank()}">
+                        <span class="tag" th:text="${notice.category}"></span>
+                    </div>
+
+                    <p th:if="${notice.description != null
+                                and !notice.description.isBlank()}"
+                       th:text="${notice.description}"></p>
+
+                    <a class="result-link" th:href="@{/notices}">
+                        View notices →
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Deadline results -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-icon">📅</div>
+                <div>
+                    <h2>Deadlines</h2>
+                    <p>Matching assignments and important dates</p>
+                </div>
+                <span class="result-count"
+                      th:text="${deadlineCount} + ' found'">0 found</span>
+            </div>
+
+            <div class="empty"
+                 th:if="${#lists.isEmpty(deadlines)}">
+                <span class="empty-icon">ⓘ</span>
+                <span>No matching deadlines found.</span>
+            </div>
+
+            <div class="result-list">
+                <div class="result"
+                     th:each="deadline : ${deadlines}">
+
+                    <h3 th:text="${deadline.title}">Deadline title</h3>
+
+                    <p>
+                        <strong>Due date:</strong>
+                        <span th:text="${deadline.dueDate != null
+                            ? deadline.dueDate : 'Not specified'}"></span>
+                    </p>
+
+                    <div class="result-meta"
+                         th:if="${deadline.deadlineType != null
+                                 and !deadline.deadlineType.isBlank()}">
+                        <span class="tag"
+                              th:text="${deadline.deadlineType}"></span>
+                    </div>
+
+                    <p th:if="${deadline.description != null
+                                and !deadline.description.isBlank()}"
+                       th:text="${deadline.description}"></p>
+
+                    <a class="result-link" th:href="@{/deadlines}">
+                        View deadlines →
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Syllabus results -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-icon">📄</div>
+                <div>
+                    <h2>Syllabus</h2>
+                    <p>Matching syllabus units and extracted PDF text</p>
+                </div>
+                <span class="result-count"
+                      th:text="${syllabusCount} + ' found'">0 found</span>
+            </div>
+
+            <div class="empty"
+                 th:if="${#lists.isEmpty(syllabusList)}">
+                <span class="empty-icon">ⓘ</span>
+                <span>No matching syllabus units or syllabus text found.</span>
+            </div>
+
+            <div class="result-list">
+                <div class="result"
+                     th:each="syllabus : ${syllabusList}">
+
+                    <h3 th:text="${syllabus.unitName != null
+                        ? syllabus.unitName : 'Syllabus'}">
+                        Syllabus
+                    </h3>
+
+                    <p>
+                        <strong>Subject ID:</strong>
+                        <span th:text="${syllabus.subjectId != null
+                            ? syllabus.subjectId : 'Not specified'}"></span>
+                    </p>
+
+                    <p th:if="${syllabus.syllabusContent != null
+                                and !syllabus.syllabusContent.isBlank()}"
+                       th:text="${syllabus.syllabusContent}"></p>
+
+                    <a class="result-link"
+                       th:href="@{/syllabus/view/{id}(id=${syllabus.id})}"
+                       target="_blank"
+                       rel="noopener">
+                        View syllabus PDF →
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <section class="guide-card"
+             th:if="${#strings.isEmpty(q)}">
+
+        <h2>How to search 🔎</h2>
+        <p>
+            Enter a keyword to search across your saved subjects, notices,
+            deadlines and extracted syllabus content.
+        </p>
+
+        <div class="example-chips">
+            <a class="example-chip"
+               th:href="@{/search(q='Java')}">Java</a>
+            <a class="example-chip"
+               th:href="@{/search(q='exam')}">Exam</a>
+            <a class="example-chip"
+               th:href="@{/search(q='assignment')}">Assignment</a>
+            <a class="example-chip"
+               th:href="@{/search(q='project')}">Project</a>
+            <a class="example-chip"
+               th:href="@{/search(q='CS101')}">CS101</a>
+        </div>
+
+        <p style="margin-top: 18px;">
+            <strong>Note:</strong> Syllabus search depends on text extracted
+            from saved PDFs. Image-only scanned PDFs need OCR before their
+            contents can be searched.
+        </p>
+
+    </section>
+
+</main>
+
+<footer>
+    © <span id="currentYear"></span> <strong>StudyBridge</strong>
+    · Your academic information, connected in one place.
+</footer>
+
+<script>
+    document.getElementById("currentYear").textContent =
+        new Date().getFullYear();
+</script>
+
+</body>
+</html>

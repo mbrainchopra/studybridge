@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Notice | StudyBridge</title>
+
+    <style>
+        :root {
+            --primary: #1677ff;
+            --primary-dark: #0758c9;
+            --primary-light: #eaf3ff;
+            --text: #172b4d;
+            --muted: #64748b;
+            --border: #e5eaf2;
+            --background: #f5f8fd;
+            --white: #ffffff;
+            --danger: #c62828;
+            --danger-bg: #fff0f0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 14px 6%;
+            background: rgba(255, 255, 255, 0.97);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 3px 15px rgba(25, 55, 100, 0.04);
+            backdrop-filter: blur(12px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .brand-icon {
+            display: grid;
+            place-items: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            color: white;
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1683ff, #5146e5);
+            box-shadow: 0 5px 12px rgba(22, 119, 255, 0.22);
+        }
+
+        .brand-name {
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: -0.6px;
+            color: var(--text);
+        }
+
+        .brand-name span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            padding: 9px 12px;
+            border-radius: 8px;
+            color: #52627a;
+            font-size: 13px;
+            font-weight: 650;
+            white-space: nowrap;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        /* Main layout */
+        .container {
+            width: 92%;
+            max-width: 850px;
+            margin: 34px auto 55px;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 18px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .breadcrumb a {
+            color: var(--primary);
+            font-weight: 650;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        /* Page banner */
+        .page-banner {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 26px 28px;
+            margin-bottom: 24px;
+            border-radius: 17px;
+            color: white;
+            background: linear-gradient(115deg, #1267e8, #5146e5);
+            box-shadow: 0 10px 25px rgba(36, 105, 220, 0.15);
+        }
+
+        .page-banner::after {
+            content: "";
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            right: -65px;
+            top: -115px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .banner-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            padding: 4px 10px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.12);
+            font-size: 10px;
+            font-weight: 750;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .page-banner h1 {
+            margin: 0 0 6px;
+            font-size: clamp(24px, 3vw, 30px);
+            line-height: 1.3;
+            letter-spacing: -0.6px;
+        }
+
+        .page-banner p {
+            margin: 0;
+            max-width: 520px;
+            color: #e4efff;
+            font-size: 13px;
+        }
+
+        .banner-icon {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            place-items: center;
+            width: 68px;
+            height: 68px;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 19px;
+            background: rgba(255, 255, 255, 0.13);
+            font-size: 31px;
+            animation: float 3.5s ease-in-out infinite;
+        }
+
+        /* Form card */
+        .form-card {
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: var(--white);
+            box-shadow: 0 6px 25px rgba(32, 60, 100, 0.05);
+        }
+
+        .form-header {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 22px 27px;
+            border-bottom: 1px solid var(--border);
+            background: #fcfdff;
+        }
+
+        .form-header-icon {
+            display: grid;
+            place-items: center;
+            width: 45px;
+            height: 45px;
+            flex-shrink: 0;
+            border-radius: 13px;
+            background: var(--primary-light);
+            font-size: 22px;
+        }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: 18px;
+            letter-spacing: -0.3px;
+        }
+
+        .form-header p {
+            margin: 3px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .form-body {
+            padding: 26px 27px 28px;
+        }
+
+        .error {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 13px 15px;
+            margin: 0 0 22px;
+            border: 1px solid #ffd4d4;
+            border-radius: 10px;
+            color: var(--danger);
+            background: var(--danger-bg);
+            font-size: 13px;
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 21px 18px;
+        }
+
+        .form-group {
+            min-width: 0;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34445d;
+            font-size: 13px;
+            font-weight: 750;
+        }
+
+        .required {
+            color: #dc4545;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .field-icon {
+            position: absolute;
+            top: 50%;
+            left: 13px;
+            transform: translateY(-50%);
+            color: #8796ab;
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            padding: 12px 13px;
+            border: 1px solid #d9e1ed;
+            border-radius: 9px;
+            outline: none;
+            color: var(--text);
+            background: #fbfcff;
+            font-family: inherit;
+            font-size: 13px;
+            transition: border 0.2s ease, box-shadow 0.2s ease,
+            background 0.2s ease;
+        }
+
+        .form-group input,
+        .form-group select {
+            height: 47px;
+        }
+
+        .form-group input.with-icon,
+        .form-group select.with-icon {
+            padding-left: 41px;
+        }
+
+        .form-group textarea {
+            min-height: 130px;
+            resize: vertical;
+            line-height: 1.7;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(22, 119, 255, 0.1);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #98a4b6;
+        }
+
+        .field-hint {
+            margin: 6px 0 0;
+            color: #8793a6;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .form-divider {
+            height: 1px;
+            margin: 25px 0 21px;
+            background: #edf0f5;
+        }
+
+        /* Actions */
+        .form-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .form-note {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .buttons {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            min-height: 43px;
+            padding: 11px 17px;
+            border: 1px solid transparent;
+            border-radius: 9px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 750;
+            cursor: pointer;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: background 0.2s ease, transform 0.2s ease,
+            box-shadow 0.2s ease;
+        }
+
+        .submit-button {
+            color: white;
+            background: var(--primary);
+            box-shadow: 0 5px 12px rgba(22, 119, 255, 0.18);
+        }
+
+        .submit-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(22, 119, 255, 0.24);
+        }
+
+        .cancel-button {
+            color: #52627a;
+            background: #f1f4f9;
+            border-color: #e1e7f0;
+        }
+
+        .cancel-button:hover {
+            background: #e6ebf3;
+            transform: translateY(-1px);
+        }
+
+        /* Information card */
+        .help-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 15px 17px;
+            margin-top: 20px;
+            border: 1px solid #d7e7ff;
+            border-radius: 12px;
+            background: #edf5ff;
+            color: #365c94;
+        }
+
+        .help-icon {
+            font-size: 19px;
+            flex-shrink: 0;
+        }
+
+        .help-card strong {
+            display: block;
+            margin-bottom: 3px;
+            color: #174b91;
+            font-size: 12px;
+        }
+
+        .help-card p {
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        footer {
+            padding: 22px 6%;
+            border-top: 1px solid var(--border);
+            background: white;
+            color: var(--muted);
+            text-align: center;
+            font-size: 12px;
+        }
+
+        footer strong {
+            color: var(--primary);
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        @media (max-width: 1000px) {
+            .navbar {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .nav-links {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 13px 5%;
+            }
+
+            .nav-links {
+                gap: 4px;
+            }
+
+            .nav-links a {
+                padding: 8px 9px;
+                font-size: 12px;
+            }
+
+            .container {
+                width: 92%;
+                margin-top: 23px;
+            }
+
+            .page-banner {
+                padding: 23px 20px;
+                border-radius: 15px;
+            }
+
+            .page-banner h1 {
+                font-size: 24px;
+            }
+
+            .page-banner p {
+                font-size: 12px;
+            }
+
+            .banner-icon {
+                width: 54px;
+                height: 54px;
+                border-radius: 15px;
+                font-size: 25px;
+            }
+
+            .form-header {
+                padding: 18px;
+            }
+
+            .form-body {
+                padding: 21px 18px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            .form-group.full-width {
+                grid-column: auto;
+            }
+
+            .form-actions {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .buttons {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .button {
+                padding: 11px 12px;
+            }
+
+            .form-note {
+                order: 2;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <a class="brand" th:href="@{/dashboard}">
+        <span class="brand-icon">S</span>
+        <span class="brand-name">Study<span>Bridge</span></span>
+    </a>
+
+    <div class="nav-links">
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <a th:href="@{/subjects}">Subjects</a>
+        <a class="active" th:href="@{/notices}">Notices</a>
+        <a th:href="@{/deadlines}">Deadlines</a>
+        <a th:href="@{/syllabus}">Syllabus</a>
+        <a th:href="@{/search}">Smart Search</a>
+    </div>
+</nav>
+
+<main class="container">
+
+    <div class="breadcrumb">
+        <a th:href="@{/dashboard}">Dashboard</a>
+        <span>›</span>
+        <a th:href="@{/notices}">Notices</a>
+        <span>›</span>
+        <span>Edit Notice</span>
+    </div>
+
+    <section class="page-banner">
+        <div class="banner-content">
+            <span class="eyebrow">Notice management</span>
+            <h1>Update Notice ✏️</h1>
+            <p>Edit college announcements, academic updates and important information.</p>
+        </div>
+        <div class="banner-icon" aria-hidden="true">📢</div>
+    </section>
+
+    <section class="form-card">
+
+        <div class="form-header">
+            <div class="form-header-icon">📝</div>
+            <div>
+                <h2>Notice Details</h2>
+                <p>Review and update the notice information below.</p>
+            </div>
+        </div>
+
+        <div class="form-body">
+
+            <p class="error"
+               th:if="${error}"
+               role="alert">
+                <span>⚠</span>
+                <span th:text="${error}"></span>
+            </p>
+
+            <form th:action="@{/notices/update/{id}(id=${notice.id})}"
+                  th:object="${notice}"
+                  method="post">
+
+                <div class="form-grid">
+
+                    <div class="form-group full-width">
+                        <label for="title">
+                            Notice Title <span class="required">*</span>
+                        </label>
+                        <div class="input-wrap">
+                            <span class="field-icon" aria-hidden="true">✏️</span>
+                            <input class="with-icon"
+                                   type="text"
+                                   id="title"
+                                   th:field="*{title}"
+                                   maxlength="200"
+                                   placeholder="Enter notice title"
+                                   autocomplete="off"
+                                   required>
+                        </div>
+                        <p class="field-hint">Use a clear title that describes the announcement.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="noticeDate">Notice Date</label>
+                        <div class="input-wrap">
+                            <span class="field-icon" aria-hidden="true">📅</span>
+                            <input class="with-icon"
+                                   type="date"
+                                   id="noticeDate"
+                                   th:field="*{noticeDate}">
+                        </div>
+                        <p class="field-hint">Set the date associated with this notice.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <div class="input-wrap">
+                            <span class="field-icon" aria-hidden="true">📂</span>
+                            <select class="with-icon"
+                                    id="category"
+                                    th:field="*{category}">
+                                <option value="">Select category</option>
+                                <option value="General">General</option>
+                                <option value="Exam">Exam</option>
+                                <option value="Holiday">Holiday</option>
+                                <option value="Event">Event</option>
+                                <option value="Academic">Academic</option>
+                                <option value="Placement">Placement</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <p class="field-hint">Choose the category that best fits the announcement.</p>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="description">Description</label>
+                        <textarea id="description"
+                                  th:field="*{description}"
+                                  rows="5"
+                                  placeholder="Enter notice details, instructions or important information..."></textarea>
+                        <p class="field-hint">Include any details students need to know about this notice.</p>
+                    </div>
+
+                </div>
+
+                <div class="form-divider"></div>
+
+                <div class="form-actions">
+                    <span class="form-note">
+                        <span class="required">*</span> Required field
+                    </span>
+
+                    <div class="buttons">
+                        <a class="button cancel-button" th:href="@{/notices}">
+                            ← Cancel
+                        </a>
+
+                        <button class="button submit-button" type="submit">
+                            ✓ Update Notice
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </section>
+
+    <aside class="help-card">
+        <span class="help-icon">ⓘ</span>
+        <div>
+            <strong>Keep announcements clear and accurate</strong>
+            <p>Review the title, date and category before saving. Your changes will be submitted when you select Update Notice.</p>
+        </div>
+    </aside>
+
+</main>
+
+<footer>
+    © <span id="currentYear"></span> <strong>StudyBridge</strong>
+    · Your academic information, connected in one place.
+</footer>
+
+<script>
+    document.getElementById("currentYear").textContent =
+        new Date().getFullYear();
+</script>
+
+</body>
+</html>

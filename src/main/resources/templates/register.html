@@ -1,0 +1,597 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Account | StudyBridge</title>
+
+    <style>
+        :root {
+            --primary: #2166d1;
+            --primary-dark: #174ea6;
+            --text-dark: #172b4d;
+            --text-muted: #667085;
+            --border: #e4eaf2;
+            --background: #f5f8ff;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: var(--background);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 18px;
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        .page-wrapper {
+            width: 100%;
+            max-width: 1000px;
+            min-height: 600px;
+            display: grid;
+            grid-template-columns: 0.95fr 1.05fr;
+            background: var(--white);
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(29, 78, 150, 0.12);
+            animation: pageAppear 0.7s ease both;
+        }
+
+        /* Left welcome panel */
+
+        .welcome-panel {
+            position: relative;
+            overflow: hidden;
+            padding: 48px 38px;
+            background: linear-gradient(145deg, #2166d1, #174ea6);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .welcome-panel::before,
+        .welcome-panel::after {
+            content: "";
+            position: absolute;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .welcome-panel::before {
+            width: 300px;
+            height: 300px;
+            right: -140px;
+            top: 60px;
+        }
+
+        .welcome-panel::after {
+            width: 220px;
+            height: 220px;
+            left: -130px;
+            bottom: 30px;
+        }
+
+        .brand,
+        .welcome-content,
+        .panel-footer {
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 23px;
+            font-weight: 750;
+            letter-spacing: -0.6px;
+        }
+
+        .brand-icon {
+            width: 43px;
+            height: 43px;
+            border-radius: 13px;
+            background: rgba(255, 255, 255, 0.17);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .welcome-content {
+            margin: 55px 0;
+        }
+
+        .welcome-content .eyebrow {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 8px 12px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.13);
+            margin-bottom: 22px;
+        }
+
+        .welcome-content h2 {
+            font-size: clamp(29px, 3vw, 38px);
+            line-height: 1.25;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+        }
+
+        .welcome-content p {
+            color: rgba(255, 255, 255, 0.82);
+            line-height: 1.8;
+            font-size: 15px;
+        }
+
+        .benefits {
+            list-style: none;
+            margin-top: 28px;
+            display: grid;
+            gap: 17px;
+        }
+
+        .benefits li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.94);
+        }
+
+        .check-icon {
+            width: 25px;
+            height: 25px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.17);
+            border-radius: 50%;
+            font-size: 13px;
+        }
+
+        .panel-footer {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.72);
+        }
+
+        /* Right registration form */
+
+        .form-panel {
+            padding: 48px 48px 38px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            animation: slideUp 0.8s ease 0.1s both;
+        }
+
+        .form-heading {
+            margin-bottom: 28px;
+        }
+
+        .form-heading .small-title {
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 750;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .form-heading h1 {
+            font-size: 30px;
+            letter-spacing: -0.8px;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .form-heading p {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .error {
+            padding: 12px 14px;
+            margin-bottom: 18px;
+            border: 1px solid #fecaca;
+            border-radius: 9px;
+            background: #fef2f2;
+            color: #b91c1c;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 19px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 650;
+            margin-bottom: 8px;
+            color: #344054;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-group input {
+            display: block;
+            width: 100%;
+            height: 49px;
+            padding: 0 14px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: #fbfcff;
+            outline: none;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--text-dark);
+            transition: border-color 0.25s, box-shadow 0.25s,
+            background 0.25s;
+        }
+
+        .form-group input::placeholder {
+            color: #98a2b3;
+        }
+
+        .form-group input:focus {
+            background: var(--white);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(33, 102, 209, 0.1);
+        }
+
+        .password-input {
+            padding-right: 70px !important;
+        }
+
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: var(--primary);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 7px 3px;
+        }
+
+        .toggle-password:hover {
+            color: var(--primary-dark);
+        }
+
+        .register-button {
+            width: 100%;
+            min-height: 50px;
+            border: none;
+            border-radius: 9px;
+            margin-top: 5px;
+            background: linear-gradient(100deg, var(--primary), #3478e5);
+            color: var(--white);
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 7px 18px rgba(33, 102, 209, 0.2);
+            transition: transform 0.25s, box-shadow 0.25s,
+            background 0.25s;
+        }
+
+        .register-button:hover {
+            background: linear-gradient(100deg, var(--primary-dark), var(--primary));
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px rgba(33, 102, 209, 0.28);
+        }
+
+        .register-button:active {
+            transform: translateY(0);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        a {
+            color: var(--primary);
+            font-weight: 700;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .back-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 22px;
+            align-self: center;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .back-home:hover {
+            color: var(--primary);
+        }
+
+        /* Animations */
+
+        @keyframes pageAppear {
+            from {
+                opacity: 0;
+                transform: translateY(18px) scale(0.99);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive layout */
+
+        @media (max-width: 760px) {
+            .page-wrapper {
+                max-width: 480px;
+                grid-template-columns: 1fr;
+            }
+
+            .welcome-panel {
+                padding: 28px 30px;
+            }
+
+            .welcome-content {
+                margin: 30px 0 20px;
+            }
+
+            .welcome-content h2 {
+                font-size: 28px;
+            }
+
+            .welcome-content p {
+                font-size: 14px;
+            }
+
+            .benefits {
+                gap: 12px;
+                margin-top: 20px;
+            }
+
+            .panel-footer {
+                margin-top: 25px;
+            }
+
+            .form-panel {
+                padding: 36px 30px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            body {
+                padding: 15px 10px;
+            }
+
+            .welcome-panel,
+            .form-panel {
+                padding-left: 22px;
+                padding-right: 22px;
+            }
+
+            .form-heading h1 {
+                font-size: 26px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page-wrapper">
+
+    <!-- Welcome panel -->
+    <section class="welcome-panel">
+
+        <a href="/" style="color: inherit; text-decoration: none;">
+            <div class="brand">
+                <div class="brand-icon">✦</div>
+                <span>StudyBridge</span>
+            </div>
+        </a>
+
+        <div class="welcome-content">
+            <span class="eyebrow">Your academic companion</span>
+
+            <h2>Start your journey to smarter learning.</h2>
+
+            <p>
+                Bring your academic information together in one place.
+                Stay organized, keep track of deadlines, and focus on what
+                matters most — your learning.
+            </p>
+
+            <ul class="benefits">
+                <li>
+                    <span class="check-icon">✓</span>
+                    Keep track of important notices
+                </li>
+                <li>
+                    <span class="check-icon">✓</span>
+                    Never miss an academic deadline
+                </li>
+                <li>
+                    <span class="check-icon">✓</span>
+                    Access your syllabus in one place
+                </li>
+            </ul>
+        </div>
+
+        <div class="panel-footer">
+            © <span id="currentYear"></span> StudyBridge. Built for students.
+        </div>
+
+    </section>
+
+    <!-- Registration form -->
+    <main class="form-panel">
+
+        <div class="form-heading">
+            <div class="small-title">Create your account</div>
+            <h1>Join StudyBridge</h1>
+            <p>
+                Enter your details below to get started with your
+                academic workspace.
+            </p>
+        </div>
+
+        <p class="error"
+           th:if="${error}"
+           th:text="${error}"
+           role="alert"></p>
+
+        <form th:action="@{/register}" action="/register" method="post">
+
+            <div class="form-group">
+                <label for="fullName">Full name</label>
+                <input
+                        type="text"
+                        id="fullName"
+                        name="fullName"
+                        placeholder="Enter your full name"
+                        maxlength="100"
+                        autocomplete="name"
+                        required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email address</label>
+                <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="you@example.com"
+                        maxlength="150"
+                        autocomplete="email"
+                        required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Create password</label>
+
+                <div class="input-wrapper">
+                    <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="password-input"
+                            placeholder="Enter your password"
+                            maxlength="100"
+                            autocomplete="new-password"
+                            required>
+
+                    <button
+                            type="button"
+                            class="toggle-password"
+                            id="togglePassword"
+                            aria-controls="password"
+                            aria-label="Show password">
+                        Show
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="register-button">
+                Create Account →
+            </button>
+
+        </form>
+
+        <div class="login-link">
+            Already registered?
+            <a th:href="@{/login}" href="/login">Login</a>
+        </div>
+
+        <a th:href="@{/}" href="/" class="back-home">
+            <span>←</span> Back to home
+        </a>
+
+    </main>
+
+</div>
+
+<script>
+    // Display the current year in the footer
+    document.getElementById("currentYear").textContent =
+        new Date().getFullYear();
+
+    // Show or hide the password
+    const passwordInput = document.getElementById("password");
+    const togglePassword = document.getElementById("togglePassword");
+
+    togglePassword.addEventListener("click", function () {
+        const isPasswordHidden = passwordInput.type === "password";
+
+        passwordInput.type = isPasswordHidden ? "text" : "password";
+        togglePassword.textContent = isPasswordHidden ? "Hide" : "Show";
+        togglePassword.setAttribute(
+            "aria-label",
+            isPasswordHidden ? "Hide password" : "Show password"
+        );
+    });
+</script>
+
+</body>
+</html>

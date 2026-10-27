@@ -1,0 +1,148 @@
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 28px 18px;
+    font-family: Arial, sans-serif;
+    background: #f3f6fc;
+    color: #1e293b;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+h1 {
+    color: #2457d6;
+}
+
+a {
+    color: #2457d6;
+    text-decoration: none;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 18px;
+    margin: 25px 0;
+}
+
+.card {
+    display: block;
+    padding: 22px;
+    background: white;
+    color: #1e293b;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px #0000000a;
+}
+
+.card h2 {
+    font-size: 30px;
+    color: #2457d6;
+    margin: 0;
+}
+
+.card p {
+    margin-bottom: 0;
+}
+
+.navigation {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.navigation a {
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+}
+
+.btn, button {
+    display: inline-block;
+    border: none;
+    border-radius: 7px;
+    padding: 11px 16px;
+    background: #2457d6;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-danger {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.table-wrap {
+    overflow-x: auto;
+    background: white;
+    border-radius: 10px;
+    margin-top: 22px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 13px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+th {
+    background: #e5edff;
+}
+
+.form-container {
+    max-width: 600px;
+    background: white;
+    padding: 26px;
+    border-radius: 12px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-top: 17px;
+    margin-bottom: 7px;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font: inherit;
+}
+
+form .btn,
+form button {
+    margin-top: 20px;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 18px 12px;
+    }
+
+    .header {
+        align-items: flex-start;
+    }
+}
